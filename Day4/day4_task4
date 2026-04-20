@@ -1,0 +1,272 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_STUDENTS 5
+
+enum Status {
+    NEW = 1,
+    ACTIVE,
+    GRADUATED
+};
+
+int main() {
+
+    int ids[MAX_STUDENTS];
+    char emrat[MAX_STUDENTS][50];
+    int progresat[MAX_STUDENTS];
+    enum Status statuset[MAX_STUDENTS];
+
+    int studentCount = 0;
+    int zgjedhja;
+    int running = 1;
+
+    printf("--- Student Tracker FINAL v4.0 ---\n");
+
+    while (running) {
+
+        printf("\nMENUJA KRYESORE:\n");
+        printf("1. Shto Student\n");
+        printf("2. Shfaq Listen\n");
+        printf("3. Raporti\n");
+        printf("4. Kerko Student\n");
+        printf("5. Dil\n");
+        printf("Zgjedhja: ");
+
+        if (scanf("%d", &zgjedhja) != 1) {
+            printf("!!! Gabim inputi !!!\n");
+            while (getchar() != '\n');
+            continue;
+        }
+
+        switch (zgjedhja) 
+        {
+          
+            case 1:
+                if (studentCount < MAX_STUDENTS) 
+                {
+
+                    printf("Emri: ");
+                    scanf("%s", emrat[studentCount]);
+
+                    printf("ID: ");
+                    scanf("%d", &ids[studentCount]);
+
+                    printf("Progresi (0-100): ");
+                    scanf("%d", &progresat[studentCount]);
+
+                    if (progresat[studentCount] < 0)
+                        progresat[studentCount] = 0;
+                    if (progresat[studentCount] > 100)
+                        progresat[studentCount] = 100;
+
+                    int zgjedhjaStatusi;
+                    int valid = 0;
+
+                    while (!valid) {
+
+                        printf("\nStatusi:\n");
+                        printf("1. NEW\n");
+                        printf("2. ACTIVE\n");
+                        printf("3. GRADUATED\n");
+                        printf("Zgjedhja: ");
+                        scanf("%d", &zgjedhjaStatusi);
+
+                        switch (zgjedhjaStatusi) 
+                        {
+                            case NEW:
+                            case ACTIVE:
+                            case GRADUATED:
+                                statuset[studentCount] = (enum Status)zgjedhjaStatusi;
+                                valid = 1;
+                                break;
+                            default:
+                                printf("!!! Status i pavlefshem !!!\n");
+                        }
+                    }
+
+                    studentCount++;
+                    printf("Studenti u shtua!\n");
+
+                } 
+          else 
+                {
+                    printf("Kapaciteti eshte plotesuar!\n");
+                }
+                break;
+
+            case 2:
+
+                if (studentCount == 0) {
+                    printf("\nLista eshte bosh.\n");
+                    break;
+                }
+
+                printf("\n%-15s | %-10s | %-10s | %-12s\n",
+                       "EMRI", "ID", "PROGRES", "STATUSI");
+                printf("------------------------------------------------\n");
+
+                for (int i = 0; i < studentCount; i++) {
+
+                    char *statusText;
+
+                    switch (statuset[i]) {
+                        case NEW: statusText = "New"; break;
+                        case ACTIVE: statusText = "Active"; break;
+                        case GRADUATED: statusText = "Graduated"; break;
+                        default: statusText = "Unknown";
+                    }
+
+                    printf("%-15s | %-10d | %-10d | %-12s\n",
+                           emrat[i], ids[i], progresat[i], statusText);
+                }
+                break;
+
+            case 3: 
+          {
+
+                if (studentCount == 0) 
+                {
+                    printf("\nNuk ka te dhena.\n");
+                    break;
+                }
+
+                int graduatedCount = 0;
+                int sum = 0;
+                int max = progresat[0];
+                int min = progresat[0];
+
+                for (int i = 0; i < studentCount; i++) 
+                {
+
+                    sum += progresat[i];
+
+                    if (statuset[i] == GRADUATED)
+                        graduatedCount++;
+
+                    if (progresat[i] > max)
+                        max = progresat[i];
+
+                    if (progresat[i] < min)
+                        min = progresat[i];
+                }
+
+                float avg = (float)sum / studentCount;
+
+                printf("\n===== RAPORT ANALITIK =====\n");
+                printf("Total Students: %d\n", studentCount);
+                printf("Graduated: %d\n", graduatedCount);
+
+                printf("Average Progress: %.2f - ", avg);
+
+                if (avg >= 80)
+                    printf("Excellent\n");
+                else if (avg >= 50)
+                    printf("Medium\n");
+                else
+                    printf("Low\n");
+
+                printf("Max Progress: %d\n", max);
+                printf("Min Progress: %d\n", min);
+                printf("===========================\n");
+
+                break;
+            }
+
+            case 4: {
+
+                int option;
+                printf("\nKerko sipas:\n");
+                printf("1. ID\n");
+                printf("2. Emrit\n");
+                printf("Zgjedhja: ");
+                scanf("%d", &option);
+
+                int found = 0;
+
+                if (option == 1) {
+
+                    int searchId;
+                    printf("Shkruaj ID: ");
+                    scanf("%d", &searchId);
+
+                    for (int i = 0; i < studentCount; i++) {
+
+                        if (ids[i] == searchId) {
+                            found = 1;
+
+                            printf("\n--- U GJET ---\n");
+                            printf("Emri: %s\n", emrat[i]);
+                            printf("ID: %d\n", ids[i]);
+                            printf("Progresi: %d\n", progresat[i]);
+
+                            char *statusText;
+                            switch (statuset[i]) {
+                                case NEW: statusText = "New"; break;
+                                case ACTIVE: statusText = "Active"; break;
+                                case GRADUATED: statusText = "Graduated"; break;
+                                default: statusText = "Unknown";
+                            }
+
+                            printf("Statusi: %s\n", statusText);
+
+                            // WARNING LOGIC
+                            if (progresat[i] == 0)
+                                printf("⚠️ Pa progres!\n");
+                            else if (progresat[i] < 50)
+                                printf("⚠️ Progres i ulet!\n");
+                            else if (progresat[i] >= 80 && statuset[i] != GRADUATED)
+                                printf("💡 Kandidat per graduation!\n");
+
+                            break;
+                        }
+                    }
+
+                } else if (option == 2) 
+                {
+
+                    char searchName[50];
+                    printf("Shkruaj emrin: ");
+                    scanf("%s", searchName);
+
+                    for (int i = 0; i < studentCount; i++) {
+
+                        if (strcmp(emrat[i], searchName) == 0) {
+                            found = 1;
+
+                            printf("\n--- U GJET ---\n");
+                            printf("Emri: %s\n", emrat[i]);
+                            printf("ID: %d\n", ids[i]);
+                            printf("Progresi: %d\n", progresat[i]);
+
+                            if (progresat[i] < 30)
+                                printf("⚠️ Rrezik i larte!\n");
+                            else if (progresat[i] >= 70)
+                                printf("💡 Performanc e mire!\n");
+
+                            break;
+                        }
+                    }
+
+                } else 
+                {
+                    printf("Opsion i pavlefshem!\n");
+                    break;
+                }
+
+                if (!found)
+                    printf("\n❌ Nuk u gjet student.\n");
+
+                break;
+            }
+
+            case 5:
+                running = 0;
+                break;
+
+            default:
+                printf("!!! Opsion i pavlefshem !!!\n");
+        }
+    }
+
+    return 0;
+}
