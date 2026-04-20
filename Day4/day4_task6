@@ -39,7 +39,7 @@ int main() {
     int zgjedhja;
     int running = 1;
 
-    printf("=== STUDENT TRACKER FINAL 0.6v===\n");
+    printf("=== STUDENT TRACKER FINAL v0.6===\n");
 
     while (running) {
 
