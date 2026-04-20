@@ -1,0 +1,194 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_STUDENTS 5
+
+enum Status { NEW = 1, ACTIVE, GRADUATED };
+
+// ================= GLOBAL ARRAYS =================
+int ids[MAX_STUDENTS];
+char emrat[MAX_STUDENTS][50];
+int progresat[MAX_STUDENTS];
+enum Status statuset[MAX_STUDENTS];
+
+int studentCount = 0;
+
+// ================= HELPER =================
+char* getStatusText(enum Status s) {
+    switch (s) {
+        case NEW: return "New";
+        case ACTIVE: return "Active";
+        case GRADUATED: return "Graduated";
+        default: return "Unknown";
+    }
+}
+
+// ================= ADD =================
+void addStudent() {
+    if (studentCount >= MAX_STUDENTS) {
+        printf("Kapaciteti plot!\n");
+        return;
+    }
+
+    printf("Emri: ");
+    scanf(" %[^\n]", emrat[studentCount]);
+
+    printf("ID: ");
+    scanf("%d", &ids[studentCount]);
+
+    printf("Progresi: ");
+    scanf("%d", &progresat[studentCount]);
+
+    if (progresat[studentCount] < 0) progresat[studentCount] = 0;
+    if (progresat[studentCount] > 100) progresat[studentCount] = 100;
+
+    int s;
+    printf("Status (1-NEW,2-ACTIVE,3-GRADUATED): ");
+    scanf("%d", &s);
+
+    statuset[studentCount] = (s >= 1 && s <= 3) ? s : NEW;
+
+    studentCount++;
+    printf("U shtua!\n");
+}
+
+// ================= DISPLAY =================
+void showStudents() {
+    if (studentCount == 0) {
+        printf("Lista bosh.\n");
+        return;
+    }
+
+    printf("\n%-15s | %-5s | %-10s | %-12s\n",
+           "EMRI","ID","PROGRES","STATUS");
+
+    for (int i = 0; i < studentCount; i++) {
+        printf("%-15s | %-5d | %-10d | %-12s\n",
+               emrat[i], ids[i], progresat[i],
+               getStatusText(statuset[i]));
+    }
+}
+
+// ================= REPORT =================
+void report() {
+    if (studentCount == 0) {
+        printf("Ska data.\n");
+        return;
+    }
+
+    int sum = 0, grad = 0;
+    int max = progresat[0], min = progresat[0];
+
+    for (int i = 0; i < studentCount; i++) {
+        sum += progresat[i];
+        if (statuset[i] == GRADUATED) grad++;
+        if (progresat[i] > max) max = progresat[i];
+        if (progresat[i] < min) min = progresat[i];
+    }
+
+    float avg = (float)sum / studentCount;
+
+    printf("\n--- RAPORT ---\n");
+    printf("Total: %d\n", studentCount);
+    printf("Graduated: %d\n", grad);
+    printf("Average: %.2f\n", avg);
+    printf("Max: %d | Min: %d\n", max, min);
+}
+
+// ================= UPDATE =================
+void updateStudent() {
+    int id, found = 0;
+
+    printf("ID: ");
+    scanf("%d", &id);
+
+    for (int i = 0; i < studentCount; i++) {
+        if (ids[i] == id) {
+            printf("Progresi i ri: ");
+            scanf("%d", &progresat[i]);
+
+            if (progresat[i] < 0) progresat[i] = 0;
+            if (progresat[i] > 100) progresat[i] = 100;
+
+            printf("U perditesua!\n");
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) printf("Nuk u gjet!\n");
+}
+
+// ================= SEARCH =================
+void searchStudent() {
+    int id, found = 0;
+
+    printf("ID: ");
+    scanf("%d", &id);
+
+    for (int i = 0; i < studentCount; i++) {
+        if (ids[i] == id) {
+            printf("%s - %d\n", emrat[i], progresat[i]);
+
+            if (progresat[i] < 50)
+                printf("⚠️ Low\n");
+            else if (progresat[i] >= 80)
+                printf("💡 High\n");
+
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) printf("Nuk u gjet!\n");
+}
+
+// ================= DELETE =================
+void deleteStudent() {
+    int id, found = 0;
+
+    printf("ID: ");
+    scanf("%d", &id);
+
+    for (int i = 0; i < studentCount; i++) {
+        if (ids[i] == id) {
+
+            for (int j = i; j < studentCount - 1; j++) {
+                ids[j] = ids[j + 1];
+                progresat[j] = progresat[j + 1];
+                statuset[j] = statuset[j + 1];
+                strcpy(emrat[j], emrat[j + 1]);
+            }
+
+            studentCount--;
+            printf("U fshi!\n");
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found) printf("Nuk u gjet!\n");
+}
+
+// ================= MAIN =================
+int main() {
+
+    int z;
+
+    while (1) {
+
+        printf("\n1.Add 2.Show 3.Report 4.Update 5.Search 6.Delete 7.Exit\n");
+        scanf("%d", &z);
+
+        switch (z) {
+            case 1: addStudent(); break;
+            case 2: showStudents(); break;
+            case 3: report(); break;
+            case 4: updateStudent(); break;
+            case 5: searchStudent(); break;
+            case 6: deleteStudent(); break;
+            case 7: return 0;
+            default: printf("Gabim!\n");
+        }
+    }
+}
